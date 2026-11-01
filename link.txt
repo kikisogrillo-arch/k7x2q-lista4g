@@ -1,1 +1,1 @@
-INCOLLA-QUI-IL-LINK-M3U
+http://freeiptv.ottc.xyz:80/get.php?username=176755043004&password=681949403693&type=m3u_plus&output=ts
