@@ -1,0 +1,47 @@
+name: Aggiorna playlist IT
+
+on:
+  push:
+    paths:
+      - link.txt          # parte quando incolli un nuovo link in link.txt
+  workflow_dispatch:      # permette anche l'avvio a mano
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aggiorna-playlist
+  cancel-in-progress: true
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scarica la playlist completa
+        id: dl
+        run: |
+          URL=$(tr -d ' \r\n\t' < link.txt)
+          case "$URL" in
+            http://*|https://*) ;;
+            *) echo "link.txt non contiene un link valido: nessuna modifica."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+          echo "::add-mask::$URL"
+          curl -fL --retry 3 --max-time 2400 -A "Mozilla/5.0" -o sorgente.m3u "$URL"
+          ls -lh sorgente.m3u
+
+      - name: Tieni solo i canali IT
+        if: steps.dl.outputs.skip != '1'
+        run: python3 filtra_it.py sorgente.m3u playlist-IT.m3u IT
+
+      - name: Salva la playlist nel repository
+        if: steps.dl.outputs.skip != '1'
+        run: |
+          rm -f sorgente.m3u
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add playlist-IT.m3u
+          git diff --cached --quiet || git commit -m "Aggiorna playlist IT"
+          git push
