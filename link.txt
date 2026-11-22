@@ -1,1 +1,1 @@
-http://freeiptv.ottc.xyz:80/get.php?username=528004392394&password=711519352821&type=m3u_plus&output=ts
+http://freeiptv.ottc.xyz:80/get.php?username=255065989063&password=746981942021&type=m3u_plus&output=ts
